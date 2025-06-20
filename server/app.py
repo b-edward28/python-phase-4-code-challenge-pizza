@@ -24,6 +24,23 @@ api = Api(app)
 def index():
     return "<h1>Code challenge</h1>"
 
+@app.route("/restaurants", methods=["GET"])
+def get_restaurants():
+    restaurants = Restaurant.query.all()
+    return make_response({"restaurants": [restaurant.to_dict() for restaurant in restaurants]}, 200)
+
+@app.route("/restaurants/<int:id>", methods=["GET"])
+def get_restaurant(id):
+    restaurant = Restaurant.query.get(id)
+    return make_response({"restaurant": restaurant.to_dict(rules = ("-restaurant_pizzas", "-restaurant_pizzas.pizza"))}, 200)
+
+@app.route("/pizzas", methods=["GET"])
+def get_pizzas():
+    pizzas = Pizza.query.all()
+    return make_response({"pizzas": [pizza.to_dict() for pizza in pizzas]}, 200)
+
+
+
 
 if __name__ == "__main__":
     app.run(port=5555, debug=True)
