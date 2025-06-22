@@ -22,14 +22,16 @@ class TestApp:
             response = app.test_client().get('/restaurants')
             assert response.status_code == 200
             assert response.content_type == 'application/json'
-            response = response.json
-            assert [restaurant['id'] for restaurant in response] == [
+            response = response.get_json()
+            restaurant_data = response["restaurants"]
+
+            assert [restaurant['id'] for restaurant in restaurant_data] == [
                 restaurant.id for restaurant in restaurants]
-            assert [restaurant['name'] for restaurant in response] == [
+            assert [restaurant['name'] for restaurant in restaurant_data] == [
                 restaurant.name for restaurant in restaurants]
-            assert [restaurant['address'] for restaurant in response] == [
+            assert [restaurant['address'] for restaurant in restaurant_data] == [
                 restaurant.address for restaurant in restaurants]
-            for restaurant in response:
+            for restaurant in restaurant_data:
                 assert 'restaurant_pizzas' not in restaurant
 
     def test_restaurants_id(self):
@@ -46,10 +48,12 @@ class TestApp:
             assert response.status_code == 200
             assert response.content_type == 'application/json'
             response = response.json
-            assert response['id'] == restaurant.id
-            assert response['name'] == restaurant.name
-            assert response['address'] == restaurant.address
-            assert 'restaurant_pizzas' in response
+            restaurant_data = response['restaurant']
+
+            assert restaurant_data['id'] == restaurant.id
+            assert restaurant_data['name'] == restaurant.name
+            assert restaurant_data['address'] == restaurant.address
+            assert 'restaurant_pizzas' in restaurant_data
 
     def test_returns_404_if_no_restaurant_to_get(self):
         '''returns an error message and 404 status code with GET request to /restaurants/<int:id> by a non-existent ID.'''
@@ -100,17 +104,18 @@ class TestApp:
             response = app.test_client().get('/pizzas')
             assert response.status_code == 200
             assert response.content_type == 'application/json'
-            response = response.json
+            response = response.get_json()
+            pizza_data = response["pizzas"]
 
             pizzas = Pizza.query.all()
 
-            assert [pizza['id'] for pizza in response] == [
+            assert [pizza['id'] for pizza in pizza_data] == [
                 pizza.id for pizza in pizzas]
-            assert [pizza['name'] for pizza in response] == [
+            assert [pizza['name'] for pizza in pizza_data] == [
                 pizza.name for pizza in pizzas]
-            assert [pizza['ingredients'] for pizza in response] == [
+            assert [pizza['ingredients'] for pizza in pizza_data] == [
                 pizza.ingredients for pizza in pizzas]
-            for pizza in response:
+            for pizza in pizza_data:
                 assert 'restaurant_pizzas' not in pizza
 
     def test_creates_restaurant_pizzas(self):
